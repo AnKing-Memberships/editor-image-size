@@ -1,5 +1,6 @@
 from typing import Optional
 
+from anki.notes import NoteId
 from aqt import mw
 from aqt.browser import Browser
 from aqt.editor import Editor
@@ -34,14 +35,17 @@ def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> 
 
 
 def on_shrink_images_action(browser: Browser):
-    for nid in browser.selected_notes():
-        note = mw.col.get_note(nid)
-        shrink_images(note)
-        note.flush()
 
-    def _run(editor: Editor) -> None:
+    mw.taskman.with_progress(
+        task=lambda: shrink_images_in_notes(browser.selected_notes()),
+        on_done=lambda _: mw.update_undo_actions,
+    )
+
+    def shrink_images_in_currently_edited_note(editor: Editor) -> None:
         shrink_images(editor.note)
         editor.loadNoteKeepingFocus()
+
+        mw.update_undo_actions()
 
     if (
         browser.editor
@@ -49,8 +53,19 @@ def on_shrink_images_action(browser: Browser):
         and browser.editor.note.id in browser.selected_notes()
     ):
         browser.editor.call_after_note_saved(
-            lambda: _run(browser.editor), keepFocus=True
+            lambda: shrink_images_in_currently_edited_note(browser.editor),
+            keepFocus=True,
         )
+
+
+def shrink_images_in_notes(nids: list[NoteId]) -> None:
+    undo_entry = mw.col.add_custom_undo_entry("Shrink images")
+    for nid in nids:
+        note = mw.col.get_note(nid)
+        shrink_images(note)
+
+        mw.col.update_note(note)
+        mw.col.merge_undo_entries(undo_entry)
 
 
 def setup_browser() -> None:

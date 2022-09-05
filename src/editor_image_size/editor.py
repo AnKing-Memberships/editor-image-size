@@ -1,10 +1,12 @@
+import re
+
 import bs4
 from aqt import mw
 from aqt.editor import Editor
 from aqt.gui_hooks import editor_did_paste
 
 from .constants import ADDON_DIR_NAME
-from .utils import shrink_images
+from .utils import overwrite_editor_field
 
 
 def on_editor_did_paste(
@@ -22,13 +24,25 @@ def on_editor_did_paste(
     if not imgs:
         return
 
-    img_file_names = [img.attrs["src"] for img in imgs]
+    imgs_to_shrink = [
+        img.attrs["src"] for img in imgs if not img.attrs.get("data-editor-shrink")
+    ]
 
-    def _run(editor: Editor) -> None:
-        shrink_images(editor.note, img_file_names)
-        editor.loadNoteKeepingFocus()
+    def run() -> None:
+        field = editor.note.fields[editor.currentField]
+        for img_name in imgs_to_shrink:
+            field = re.sub(
+                rf'(<img [^>]*src="{img_name}")',
+                r"\1 data-editor-shrink=true",
+                field,
+            )
 
-    editor.call_after_note_saved(lambda: _run(editor), keepFocus=True)
+        # this makes it possible to undo the change from the html editor
+        # it unfortunately doesn't work from the normal editor
+        # there are discussions about reworking the undo system in the Anki repo
+        overwrite_editor_field(editor, editor.currentField, field)
+
+    editor.call_after_note_saved(lambda: run(), keepFocus=True)
 
 
 def setup_editor() -> None:
