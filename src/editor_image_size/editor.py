@@ -1,12 +1,10 @@
-import re
-
 import bs4
 from aqt import mw
 from aqt.editor import Editor
 from aqt.gui_hooks import editor_did_paste
 
 from .constants import ADDON_DIR_NAME
-from .utils import overwrite_editor_field
+from .utils import overwrite_editor_field, with_shrunken_images
 
 
 def on_editor_did_paste(
@@ -29,13 +27,12 @@ def on_editor_did_paste(
     ]
 
     def run() -> None:
+        if editor.currentField is None:
+            return
+
         field = editor.note.fields[editor.currentField]
         for img_name in imgs_to_shrink:
-            field = re.sub(
-                rf'(<img [^>]*src="{img_name}")',
-                r"\1 data-editor-shrink=true",
-                field,
-            )
+            field = with_shrunken_images(field, img_name)
 
         # this makes it possible to undo the change from the html editor
         # it unfortunately doesn't work from the normal editor
