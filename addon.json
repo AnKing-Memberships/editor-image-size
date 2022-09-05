@@ -1,0 +1,14 @@
+{
+    "display_name": "Editor Image Size",
+    "module_name": "editor_image_size",
+    "repo_name": "editor-image-size",
+    "ankiweb_id": "",
+    "author": "RisingOrange",
+    "conflicts": [],
+    "targets": [
+        "anki21"
+    ],
+    "min_anki_version": "2.1.50",
+    "max_tested_anki_version": "2.1.54",
+    "ankiweb_conflicts_with_local": false
+}
