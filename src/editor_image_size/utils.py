@@ -1,9 +1,7 @@
-import json
 import re
 from typing import Optional
 
 from anki.notes import Note
-from aqt.editor import Editor
 
 
 def shrink_images(
@@ -14,8 +12,8 @@ def shrink_images(
 
 
 def with_shrunken_images(html: str, img_name: Optional[str] = None) -> str:
-    # if img_name is not None, only images with the given name are shrunk,
-    # else all images
+    # if img_name is None all images are shrunk,
+    # else only images with the given name
 
     if img_name is None:
         img_name = r'[^"]+'
@@ -27,13 +25,3 @@ def with_shrunken_images(html: str, img_name: Optional[str] = None) -> str:
             result = result[: m.start()] + new_img_tag + result[m.end() :]
 
     return result
-
-
-def overwrite_editor_field(editor: Editor, ord: int, content: str) -> None:
-    editor.web.eval(
-        f"""
-        focusField({ord})
-        document.execCommand('selectAll', false)
-        document.execCommand('insertHTML', false, {json.dumps(content)})
-        """
-    )
