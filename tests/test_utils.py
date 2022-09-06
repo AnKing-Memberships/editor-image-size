@@ -25,3 +25,10 @@ def test_with_shrunken_images():
         with_shrunken_images('<img src="foo.jpg" class=">">')
         == '<img src="foo.jpg" class=">">'
     )
+
+
+def test_with_shrunken_images_with_mutliple_images():
+    assert with_shrunken_images('<img src="1.png"><img src="2.png">') == (
+        '<img src="1.png" data-editor-shrink="true">'
+        '<img src="2.png" data-editor-shrink="true">'
+    )

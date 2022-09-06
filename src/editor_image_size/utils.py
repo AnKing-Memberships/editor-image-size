@@ -45,7 +45,11 @@ def with_shrunken_images(html: str) -> str:
     file_names_re = "|".join(img_file_names)
 
     result = html
-    for m in re.finditer(rf'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>', html):
+
+    # use reversed so that match positions don't shift after replacements
+    for m in reversed(
+        list(re.finditer(rf'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>', result))
+    ):
         if 'data-editor-shrink="true"' not in m.group(0):
             old_img_tag = m.group(0)
             if old_img_tag.endswith("/>"):
