@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import bs4
 
@@ -7,6 +8,9 @@ try:
     from anki.notes import Note  # pylint: disable=unused-import
 except:
     pass
+
+# without this Anki sometimes shows MarkupResemblesLocatorWarnings issued by bs4
+warnings.filterwarnings("ignore", category=UserWarning, module="bs4")
 
 
 def shrink_images(
