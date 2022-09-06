@@ -10,7 +10,7 @@ In the Anki browser you can select notes, right click and choose the "Shrink Ima
 to shrink all images in the selected notes. This action is undoable (Edit -> Undo "Shrink Images").
 
 For both use cases, the images are only shrunk in the editor (it has the same effect as
-double-clicking them in the editor.
+double-clicking them in the editor).
 They will have the same size as before when displayed on a card while reviewing.
 
 
