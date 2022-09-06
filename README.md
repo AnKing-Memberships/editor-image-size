@@ -5,7 +5,7 @@ When you paste an image in the note editor, it will be shrunk by default.
 You can disable this behaviour in the add-on configuration.
 
 In the Anki browser you can select notes, right click and choose the "Shrink Images" action
-to shrink all images in the selected notes.
+to shrink all images in the selected notes. This action is undoable (Edit -> Undo "Shrink Images").
 
 For both use cases, the images are only shrunk in the editor (it has the same effect as
 double-clicking them in the editor.
