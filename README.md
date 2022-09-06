@@ -1,5 +1,7 @@
 <b>This add-on was funded by the Anki Palace. Please consider supporting our work using the links below so we can continue to fund add-on projects like this.</b>
 
+AnkiWeb page: https://ankiweb.net/shared/info/1633333766
+
 ## Instructions for use:
 When you paste an image in the note editor, it will be shrunk by default.
 You can disable this behaviour in the add-on configuration.
