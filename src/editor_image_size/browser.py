@@ -1,3 +1,4 @@
+from concurrent.futures import Future
 from typing import Optional
 
 from anki.notes import NoteId
@@ -6,7 +7,7 @@ from aqt.browser import Browser
 from aqt.editor import Editor
 from aqt.gui_hooks import browser_will_show_context_menu
 from aqt.qt import QMenu
-from aqt.utils import tr
+from aqt.utils import tooltip, tr
 
 from .utils import shrink_images
 
@@ -35,17 +36,20 @@ def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> 
 
 
 def on_shrink_images_action(browser: Browser):
-
-    mw.taskman.with_progress(
-        task=lambda: shrink_images_in_notes(browser.selected_notes()),
-        on_done=lambda _: mw.update_undo_actions,
-    )
-
     def shrink_images_in_currently_edited_note(editor: Editor) -> None:
         shrink_images(editor.note)
         editor.loadNoteKeepingFocus()
 
         mw.update_undo_actions()
+
+    def on_done(_: Future) -> None:
+        mw.update_undo_actions()
+        tooltip("Done", parent=browser)
+
+    mw.taskman.with_progress(
+        task=lambda: shrink_images_in_notes(browser.selected_notes()),
+        on_done=on_done,
+    )
 
     if (
         browser.editor
