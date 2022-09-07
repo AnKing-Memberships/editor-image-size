@@ -9,7 +9,7 @@ from aqt.gui_hooks import browser_will_show_context_menu
 from aqt.qt import QMenu
 from aqt.utils import tooltip, tr
 
-from .utils import shrink_images
+from .utils import expand_images, shrink_images
 
 
 def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> None:
@@ -31,25 +31,35 @@ def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> 
     menu.addSeparator()
     menu.addAction(
         "Shrink images",
-        lambda: on_shrink_images_action(browser),
+        lambda: on_change_image_size_action(browser, shrink=True),
+    )
+    menu.addAction(
+        "Expand images",
+        lambda: on_change_image_size_action(browser, shrink=False),
     )
 
 
-def on_shrink_images_action(browser: Browser):
-    def shrink_images_in_currently_edited_note(editor: Editor) -> None:
-        shrink_images(editor.note)
-        editor.loadNoteKeepingFocus()
+def on_change_image_size_action(browser: Browser, shrink: bool) -> None:
+    def on_done(future: Future) -> None:
+        # raises exception if there was one in the background thread
+        future.result()
 
-        mw.update_undo_actions()
-
-    def on_done(_: Future) -> None:
         mw.update_undo_actions()
         tooltip("Done", parent=browser)
 
     mw.taskman.with_progress(
-        task=lambda: shrink_images_in_notes(browser.selected_notes()),
+        task=lambda: change_image_size_in_notes(browser.selected_notes(), shrink),
         on_done=on_done,
     )
+
+    def resize_images_in_currently_edited_note(editor: Editor) -> None:
+        if shrink:
+            shrink_images(editor.note)
+        else:
+            expand_images(editor.note)
+        editor.loadNoteKeepingFocus()
+
+        mw.update_undo_actions()
 
     if (
         browser.editor
@@ -57,16 +67,21 @@ def on_shrink_images_action(browser: Browser):
         and browser.editor.note.id in browser.selected_notes()
     ):
         browser.editor.call_after_note_saved(
-            lambda: shrink_images_in_currently_edited_note(browser.editor),
+            lambda: resize_images_in_currently_edited_note(browser.editor),
             keepFocus=True,
         )
 
 
-def shrink_images_in_notes(nids: list[NoteId]) -> None:
-    undo_entry = mw.col.add_custom_undo_entry("Shrink images")
+def change_image_size_in_notes(nids: list[NoteId], shrink: bool) -> None:
+    undo_entry = mw.col.add_custom_undo_entry(
+        "Shrink images" if shrink else "Expand images"
+    )
     for nid in nids:
         note = mw.col.get_note(nid)
-        shrink_images(note)
+        if shrink:
+            shrink_images(note)
+        else:
+            expand_images(note)
 
         mw.col.update_note(note)
         mw.col.merge_undo_entries(undo_entry)
