@@ -42,21 +42,6 @@ def with_shrunken_images(html: str) -> str:
     return result
 
 
-def img_tag_matches_in_html(html: str, img_file_names: List[str]):
-    # img_file_names are used to make it more unlikely that the img regex matches something that it shouldn't
-    # img tags that have ">" signs in attributes other than the src are ignored
-    # (this is a limitation due to using a regex and being careful not to break the html and
-    #  Anki replaces ">" with "&gt;" in the editor anyway, but maybe not in all versions and situations)
-    # this regex approach is used to not make formatting changes in the html when converting from html to soup to html.
-    IMG_RE = r'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>'
-    return list(
-        re.finditer(
-            IMG_RE.format(file_names_re="|".join(map(re.escape, img_file_names))),
-            html,
-        )
-    )
-
-
 def expand_images(
     note: "Note",
 ) -> None:
@@ -76,6 +61,21 @@ def with_expanded_images(html: str) -> str:
         result = result[: m.start()] + new_img_tag + result[m.end() :]
 
     return result
+
+
+def img_tag_matches_in_html(html: str, img_file_names: List[str]):
+    # img_file_names are used to make it more unlikely that the img regex matches something that it shouldn't
+    # img tags that have ">" signs in attributes other than the src are ignored
+    # (this is a limitation due to using a regex and being careful not to break the html and
+    #  Anki replaces ">" with "&gt;" in the editor anyway, but maybe not in all versions and situations)
+    # this regex approach is used to not make formatting changes in the html when converting from html to soup to html.
+    IMG_RE = r'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>'
+    return list(
+        re.finditer(
+            IMG_RE.format(file_names_re="|".join(map(re.escape, img_file_names))),
+            html,
+        )
+    )
 
 
 def embedded_imgs(html: str, expanded: bool) -> list[str]:
