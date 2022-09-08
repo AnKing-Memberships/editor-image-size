@@ -27,6 +27,12 @@ def test_with_shrunken_images():
         == '<img src="foo.jpg" class=">">'
     )
 
+    # with regex special characters in image name
+    assert (
+        with_shrunken_images('<img src="++.jpg"/>')
+        == '<img src="++.jpg" data-editor-shrink="true"/>'
+    )
+
 
 def test_with_shrunken_images_with_mutliple_images():
     assert with_shrunken_images('<img src="1.png"><img src="2.png">') == (
@@ -56,6 +62,12 @@ def test_with_expanded_images():
     assert (
         with_expanded_images('<img src="foo.jpg" class=">">')
         == '<img src="foo.jpg" class=">">'
+    )
+
+    # with regex special characters in image name
+    assert (
+        with_expanded_images('<img src="++.jpg" data-editor-shrink="true"/>')
+        == '<img src="++.jpg"/>'
     )
 
 

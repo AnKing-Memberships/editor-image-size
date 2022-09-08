@@ -1,5 +1,6 @@
 import re
 import warnings
+from typing import List
 
 import bs4
 
@@ -11,8 +12,6 @@ except:
 
 # without this Anki sometimes shows MarkupResemblesLocatorWarnings issued by bs4
 warnings.filterwarnings("ignore", category=UserWarning, module="bs4")
-
-IMG_RE = r'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>'
 
 
 def shrink_images(
@@ -36,9 +35,7 @@ def with_shrunken_images(html: str) -> str:
     result = html
 
     # use reversed so that match positions don't shift after replacements
-    for m in reversed(
-        list(re.finditer(IMG_RE.format(file_names_re="|".join(img_file_names)), result))
-    ):
+    for m in reversed(img_tag_matches_in_html(result, img_file_names)):
         if not re.search("data-editor-shrink=['\"]true['\"]", m.group(0)):
             old_img_tag = m.group(0)
             if old_img_tag.endswith("/>"):
@@ -48,6 +45,16 @@ def with_shrunken_images(html: str) -> str:
             result = result[: m.start()] + new_img_tag + result[m.end() :]
 
     return result
+
+
+def img_tag_matches_in_html(html: str, img_file_names: List[str]):
+    IMG_RE = r'<img [^>]*?src=[\'"]({file_names_re})[\'"][^>]*?>'
+    return list(
+        re.finditer(
+            IMG_RE.format(file_names_re="|".join(map(re.escape, img_file_names))),
+            html,
+        )
+    )
 
 
 def expand_images(
@@ -64,9 +71,7 @@ def with_expanded_images(html: str) -> str:
         return html
 
     result = html
-    for m in reversed(
-        list(re.finditer(IMG_RE.format(file_names_re="|".join(img_file_names)), result))
-    ):
+    for m in reversed(img_tag_matches_in_html(result, img_file_names)):
         old_img_tag = m.group(0)
         new_img_tag = re.sub(r" ?data-editor-shrink=['\"]true['\"]", "", old_img_tag)
         result = result[: m.start()] + new_img_tag + result[m.end() :]

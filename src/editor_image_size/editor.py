@@ -18,7 +18,7 @@ def setup_editor() -> None:
 
     # tried to implement it using the editor_with_paste hook instead of monkey patching,
     # but this made it so that the undo history didn't work anymore
-    Editor._pastePreFilter = wrap(  # pylint: disable=protected-access
+    Editor._pastePreFilter = wrap(  # type: ignore # pylint: disable=protected-access # type: ignore
         Editor._pastePreFilter,  # pylint: disable=protected-access
         shrink_pasted_images,
         "around",

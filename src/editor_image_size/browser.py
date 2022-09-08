@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Optional
+from typing import Optional, Sequence
 
 from anki.notes import NoteId
 from aqt import mw
@@ -72,7 +72,7 @@ def on_change_image_size_action(browser: Browser, shrink: bool) -> None:
         )
 
 
-def change_image_size_in_notes(nids: list[NoteId], shrink: bool) -> None:
+def change_image_size_in_notes(nids: Sequence[NoteId], shrink: bool) -> None:
     undo_entry = mw.col.add_custom_undo_entry(
         "Shrink images" if shrink else "Expand images"
     )
