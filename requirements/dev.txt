@@ -1,0 +1,4 @@
+types-beautifulsoup4
+aqt==2.1.54
+pyqt5
+PyQtWebEngine

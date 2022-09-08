@@ -78,7 +78,7 @@ def img_tag_matches_in_html(html: str, img_file_names: List[str]):
     )
 
 
-def embedded_imgs(html: str, expanded: bool) -> list[str]:
+def embedded_imgs(html: str, expanded: bool) -> List[str]:
     soup = bs4.BeautifulSoup(html, "html.parser")
     result = list(
         set(

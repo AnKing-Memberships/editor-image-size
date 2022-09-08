@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# A script for running mypy,
+# with all its dependencies installed.
+
+set -o errexit
+
+# Change directory to the project root directory.
+cd "$(dirname "$0")/.."
+
+# Install the dependencies into the mypy env.
+pip install -r requirements/dev.txt \
+  --retries 1 \
+  --quiet
+
+# Run on all files,
+# ignoring the paths passed to this script,
+# so as not to miss type errors.
+mypy src
