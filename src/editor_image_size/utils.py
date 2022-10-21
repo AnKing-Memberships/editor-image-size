@@ -93,4 +93,5 @@ def embedded_imgs(html: str, expanded: bool) -> List[str]:
             )
         )
     )
+    result = [img for img in result if img]
     return result
